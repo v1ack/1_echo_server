@@ -28,6 +28,29 @@ SocketMethods.send_text(sock, token)
 connection_alive = True
 
 
+def custom_input() -> str:
+    result = ''
+    if os.name == 'nt':
+        import msvcrt
+        while True:
+            entered = msvcrt.getwch()
+            if entered == '\r':
+                break
+            msvcrt.putwch(entered)
+            result += entered
+    else:
+        import curses
+        console = curses.initscr()
+        while True:
+            entered = console.get_wch()
+            if entered == '\n':
+                break
+            result += entered
+    print('\r', flush=False, end='')
+    # print('>', result)
+    return result
+
+
 def receive_messages():
     global connection_alive
     while True:
@@ -48,7 +71,7 @@ def receive_messages():
 Thread(target=receive_messages, daemon=True).start()
 
 while True:
-    message = input()
+    message = custom_input()
     if connection_alive:
         SocketMethods.send_text(sock, message)
     else:
